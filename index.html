@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generation and Segmentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #container{
+            margin-bottom: 200px;
+            background-color: #fff;
+            padding: 80px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+        }
+        /* #container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+            text-align: center; }*/
+        
+        h1, h2 {
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            display: none;
+        }
+        .generated-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .segmentation-mask{
+            width: 100%;
+            height: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Generate Image and Segment</h1>
+        <form id="imageForm" method="post">
+            <input type="text" name="prompt" id="promptInput" placeholder="Enter text prompt">
+            <button type="submit">Generate & Segment</button>
+        </form>
+
+        <div id="result">
+            <h2>Generated Image</h2>
+            <img class="generated-image" id="generatedImage" src="" alt="Generated Image">
+
+            <h2>Segmentation Mask</h2>
+            <img class="segmentation-mask" id="segmentationMask" src="" alt="Segmentation Mask">
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("imageForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var formData = new FormData(this);
+
+            fetch("/generate_image", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update the src attribute of the generated image
+                var generatedImage = document.getElementById("generatedImage");
+                generatedImage.src = "data:image/jpeg;base64," + data.image;
+
+                // Update the src attribute of the segmentation mask
+                var segmentationMask = document.getElementById("segmentationMask");
+                segmentationMask.src = "data:image/png;base64," + data.mask;
+
+                // Show the result
+                var resultDiv = document.getElementById("result");
+                resultDiv.style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
+</body>
+</html>
